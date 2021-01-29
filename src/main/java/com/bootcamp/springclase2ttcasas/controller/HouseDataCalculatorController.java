@@ -6,6 +6,7 @@ import com.bootcamp.springclase2ttcasas.dto.SqrMetersByRoomDTO;
 import com.bootcamp.springclase2ttcasas.service.*;
 import com.bootcamp.springclase2ttcasas.service.price.PriceCalculatorService;
 import com.bootcamp.springclase2ttcasas.service.sqrmeter.SqrMeterCalculatorService;
+import com.bootcamp.springclase2ttcasas.util.RoundUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,9 +31,9 @@ public class HouseDataCalculatorController {
     public ResponseEntity<ResponseDTO> calculateHouseData(@RequestBody HouseDTO house) {
         try {
             List<SqrMetersByRoomDTO> sqrMetersByRoomInDescendingOrder = sqrMeterCalculatorService.getSqrMetersByRoomInDescendingOrder(house.getRooms());
-            final double totalSqrMeters = sqrMetersByRoomInDescendingOrder.stream()
+            final double totalSqrMeters = RoundUtil.roundOneDecimal(sqrMetersByRoomInDescendingOrder.stream()
                     .map(SqrMetersByRoomDTO::getSqrMeters)
-                    .reduce(0d, Double::sum);
+                    .reduce(0d, Double::sum));
             double price = priceCalculatorService.calculatePrice(totalSqrMeters);
             final String biggestRoom = sqrMetersByRoomInDescendingOrder.get(0).getName();
             final ResponseDTO responseDTO = new ResponseDTO(totalSqrMeters, price, biggestRoom, sqrMetersByRoomInDescendingOrder);
